@@ -18,3 +18,15 @@ docker compose down -v    # stop AND wipe data (needed to re-run init scripts)
 ```
 
 Two databases are created: `tickets` (development) and `tickets_test` (integration tests).
+
+## Backend
+
+```bash
+cd backend
+cp .env.example .env
+npm install
+npm run dev          # API on http://localhost:3000
+curl localhost:3000/health   # {"status":"ok","db":"up"} when Postgres is running
+```
+
+Scripts: `dev` (watch mode), `build`, `start` (runs compiled output), `typecheck`, `test`.
