@@ -29,4 +29,13 @@ npm run dev          # API on http://localhost:3000
 curl localhost:3000/health   # {"status":"ok","db":"up"} when Postgres is running
 ```
 
-Scripts: `dev` (watch mode), `build`, `start` (runs compiled output), `typecheck`, `test`.
+Scripts: `dev` (watch mode), `build`, `start` (runs compiled output), `typecheck`, `db:migrate`, `db:migrate:test`, `test`.
+
+### Database schema
+
+```bash
+npm run db:migrate         # apply schema to the dev DB (tickets)
+npm run db:migrate:test    # apply schema to the test DB (tickets_test)
+```
+
+The schema (`backend/src/db/schema.sql`) is idempotent, so running it repeatedly is safe.

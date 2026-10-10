@@ -9,6 +9,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
+    "db:migrate": "tsx src/db/migrate-cli.ts",
+    "db:migrate:test": "NODE_ENV=test tsx src/db/migrate-cli.ts",
     "test": "NODE_ENV=test vitest run"
   },
   "engines": {
