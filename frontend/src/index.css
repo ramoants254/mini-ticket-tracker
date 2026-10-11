@@ -1,1 +1,32 @@
 @import "tailwindcss";
+@import "@fontsource-variable/bricolage-grotesque/wdth.css";
+
+@theme {
+  --font-sans: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ground: #edf0ea;
+  --color-surface: #fafbf8;
+  --color-ink: #17202a;
+  --color-muted: #5b6672;
+  --color-rule: #cbd2c9;
+  --color-accent: #0b5d5e;
+  --color-accent-deep: #08494a;
+
+  /* Priority colours: used for the row's edge bar and its text label. */
+  --color-high: #b42318;
+  --color-medium: #8a5a00;
+  --color-low: #5f6f85;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}

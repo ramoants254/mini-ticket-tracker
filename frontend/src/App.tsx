@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { describeError, getStats, isAbortError, listTickets, updateTicket } from './api'
-import { StatsBar } from './components/StatsBar'
+import { StatusTabs } from './components/StatusTabs'
 import { TicketForm } from './components/TicketForm'
 import { TicketList } from './components/TicketList'
 import type { Stats, Status, TicketPage } from './types'
@@ -80,39 +80,45 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <main className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-        <h1 className="text-2xl font-bold">Mini Ticket Tracker</h1>
+    <main className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
+      <h1
+        className="text-4xl font-extrabold tracking-tight sm:text-5xl"
+        style={{ fontStretch: '85%' }}
+      >
+        Mini Ticket Tracker
+      </h1>
 
-        <StatsBar stats={stats} />
-
-        {error && (
-          <div role="alert" className="flex items-center justify-between gap-3 rounded-md bg-red-50 p-3 text-sm text-red-800">
-            <span>{error}</span>
-            <button type="button" onClick={reload} className="rounded-md border border-red-300 px-3 py-1 font-medium">
-              Retry
-            </button>
-          </div>
-        )}
-
+      <div className="mt-10 grid gap-12 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-14">
         <TicketForm onCreated={handleCreated} />
 
-        {actionError && (
-          <div role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800">
-            Could not update ticket: {actionError}
-          </div>
-        )}
+        <div className="space-y-5">
+          <StatusTabs stats={stats} value={statusFilter} onChange={handleFilterChange} />
 
-        <TicketList
-          result={result}
-          loading={loading}
-          statusFilter={statusFilter}
-          onFilterChange={handleFilterChange}
-          onPageChange={setPage}
-          onStatusChange={handleStatusChange}
-          updatingId={updatingId}
-        />
-      </main>
-    </div>
+          {error && (
+            <div role="alert" className="flex items-center justify-between gap-4 border-l-4 border-high bg-surface px-4 py-3 text-sm">
+              <span>{error}</span>
+              <button type="button" onClick={reload} className="cursor-pointer font-semibold text-accent underline underline-offset-2">
+                Retry
+              </button>
+            </div>
+          )}
+
+          {actionError && (
+            <div role="alert" className="border-l-4 border-high bg-surface px-4 py-3 text-sm">
+              Could not update ticket: {actionError}
+            </div>
+          )}
+
+          <TicketList
+            result={result}
+            loading={loading}
+            statusFilter={statusFilter}
+            onPageChange={setPage}
+            onStatusChange={handleStatusChange}
+            updatingId={updatingId}
+          />
+        </div>
+      </div>
+    </main>
   )
 }

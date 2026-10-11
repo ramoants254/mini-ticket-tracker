@@ -8,6 +8,12 @@ interface Props {
   onChange: (status: Status) => void
 }
 
+const TEXT: Record<Status, string> = {
+  open: 'text-ink',
+  in_progress: 'text-accent',
+  closed: 'text-muted',
+}
+
 export function StatusSelect({ ticketTitle, value, disabled, onChange }: Props) {
   return (
     <select
@@ -15,7 +21,7 @@ export function StatusSelect({ ticketTitle, value, disabled, onChange }: Props) 
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value as Status)}
-      className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm disabled:opacity-50"
+      className={`cursor-pointer rounded-sm border border-rule bg-surface px-2 py-1.5 text-sm font-semibold disabled:cursor-wait disabled:opacity-50 ${TEXT[value]}`}
     >
       {STATUSES.map((s) => (
         <option key={s} value={s}>

@@ -40,6 +40,21 @@ If port 5432 is already used by a local Postgres, change the mapping in `docker-
 
 To stop: `docker compose down` (keeps data) or `docker compose down -v` (wipes data, and re-runs the init script on next start).
 
+### Optional: run the API in Docker too
+
+The API also has a Dockerfile and a compose service behind the `full` profile, so the default
+`docker compose up -d` still starts only the database (and port 3000 stays free for `npm run dev`).
+
+```bash
+docker compose --profile full up -d --build   # database + API on http://localhost:3000
+docker compose --profile full logs -f api
+docker compose --profile full down            # stop both
+```
+
+The container applies the schema on start, then launches the compiled server. The frontend still runs
+with `npm run dev` and talks to the containerised API through the same `/api` proxy. Do not run the
+container and `npm run dev` for the backend at the same time: both use port 3000.
+
 ## Running the tests
 
 ```bash
@@ -80,8 +95,9 @@ curl localhost:3000/tickets/stats
 ## Project structure
 
 ```
-docker-compose.yml          PostgreSQL + init script (creates the test database)
+docker-compose.yml          PostgreSQL + init script (creates the test database); optional `api` service
 backend/
+  Dockerfile                Multi-stage build for the optional containerised API
   src/app.ts                Express app (exported separately from the server for tests)
   src/server.ts             Starts the HTTP server
   src/config.ts             Environment loading (picks the test DB when NODE_ENV=test)
@@ -94,15 +110,20 @@ backend/
 frontend/
   src/App.tsx               Page state and data loading
   src/api.ts                Typed fetch wrapper
-  src/components/           TicketList, TicketForm, StatusSelect, StatsBar, Badge
+  src/components/           TicketList, TicketForm, StatusSelect, StatusTabs
 ```
 
 The frontend dev server proxies `/api/*` to `http://localhost:3000`, so the browser uses a single origin.
 Set `VITE_API_URL` to point the UI at a different API.
 
+The UI is a single page: a form to create tickets, a paginated ticket list, and a status dropdown on each row.
+The status tabs show the count per status (from `GET /tickets/stats`) and double as the list filter. Each row's
+left edge is coloured by priority, and the priority is also written out in text. The font (Bricolage Grotesque)
+is self-hosted via `@fontsource-variable`, so the UI makes no external font requests.
+
 ## Decisions & Tradeoffs
 
-I used plain SQL with `pg` and Zod instead of an ORM, because the surface is four queries and I wanted the SQL visible and easy to review. Status and priority are PostgreSQL enums, so the database rejects invalid values even if the API had a bug; the cost is that adding a value later needs an `ALTER TYPE` migration. The schema is a single idempotent `schema.sql` applied by a small script rather than a real migration tool, which is fine for one table but gives no versioning or rollback. Docker is used only for PostgreSQL, since that is the painful dependency to install; running the Node apps directly is faster to develop with and keeps the setup simple. Pagination is offset-based (`LIMIT/OFFSET`) for simplicity, with `id` as a tiebreaker so pages are stable; cursor pagination would scale better for very large tables. I kept the scope to the brief, so there is no authentication, no deletion, no search, and no rate limiting. The tests are integration tests against a real database, and I added a guard so they cannot run against the development database. On the frontend I fetch directly with `useEffect` and cancel stale requests; I skipped frontend tests and styling polish, and a library like TanStack Query would be the next step for caching and optimistic updates. With more time I would add CI (GitHub Actions running the tests), OpenAPI documentation, a proper migration tool, a Dockerfile for the whole stack, and structured logging.
+I used plain SQL with `pg` and Zod instead of an ORM, because the surface is four queries and I wanted the SQL visible and easy to review. Status and priority are PostgreSQL enums, so the database rejects invalid values even if the API had a bug; the cost is that adding a value later needs an `ALTER TYPE` migration. The schema is a single idempotent `schema.sql` applied by a small script rather than a real migration tool, which is fine for one table but gives no versioning or rollback. Docker is used for PostgreSQL by default, since that is the painful dependency to install, and the API has an optional containerised mode behind a compose profile; running the Node apps directly is faster to develop with and keeps the default setup simple. Pagination is offset-based (`LIMIT/OFFSET`) for simplicity, with `id` as a tiebreaker so pages are stable; cursor pagination would scale better for very large tables. I kept the scope to the brief, so there is no authentication, no deletion, no search, and no rate limiting. The tests are integration tests against a real database, and I added a guard so they cannot run against the development database. On the frontend I fetch directly with `useEffect` and cancel stale requests; I skipped frontend tests, and a library like TanStack Query would be the next step for caching and optimistic updates. With more time I would add CI (GitHub Actions running the tests), OpenAPI documentation, a proper migration tool, a Dockerfile for the whole stack, and structured logging.
 
 ### Assumptions
 

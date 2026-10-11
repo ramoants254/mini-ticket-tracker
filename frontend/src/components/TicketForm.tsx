@@ -4,7 +4,8 @@ import { createTicket, describeError } from '../api'
 import type { Priority } from '../types'
 import { PRIORITIES, PRIORITY_LABELS } from '../types'
 
-const FIELD = 'mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2'
+const FIELD =
+  'mt-1.5 block w-full rounded-sm border border-rule bg-surface px-3 py-2 placeholder:text-muted/70'
 
 export function TicketForm({ onCreated }: { onCreated: () => void }) {
   const [title, setTitle] = useState('')
@@ -36,44 +37,56 @@ export function TicketForm({ onCreated }: { onCreated: () => void }) {
   }
 
   return (
-    <section aria-labelledby="new-ticket-heading" className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-      <h2 id="new-ticket-heading" className="mb-3 text-lg font-semibold">
+    <section aria-labelledby="new-ticket-heading" className="lg:sticky lg:top-8">
+      <h2 id="new-ticket-heading" className="border-b-2 border-ink pb-2 text-2xl font-bold">
         New ticket
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <label className="block text-sm font-medium">
+      <form onSubmit={handleSubmit} className="mt-5 space-y-5">
+        <label className="block font-semibold">
           Title
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
             maxLength={255}
-            className={FIELD}
+            placeholder="What needs fixing?"
+            className={`${FIELD} font-normal`}
           />
         </label>
-        <label className="block text-sm font-medium">
-          Description <span className="font-normal text-gray-500">(optional)</span>
+        <label className="block font-semibold">
+          Description <span className="font-normal text-muted">(optional)</span>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={3}
+            rows={4}
             maxLength={5000}
-            className={FIELD}
+            className={`${FIELD} font-normal`}
           />
         </label>
-        <label className="block text-sm font-medium sm:max-w-xs">
-          Priority
-          <select value={priority} onChange={(e) => setPriority(e.target.value as Priority)} className={FIELD}>
+
+        <fieldset>
+          <legend className="font-semibold">Priority</legend>
+          <div className="mt-1.5 flex overflow-hidden rounded-sm border border-rule bg-surface">
             {PRIORITIES.map((p) => (
-              <option key={p} value={p}>
-                {PRIORITY_LABELS[p]}
-              </option>
+              <label key={p} className="flex-1 border-r border-rule last:border-r-0">
+                <input
+                  type="radio"
+                  name="priority"
+                  value={p}
+                  checked={priority === p}
+                  onChange={() => setPriority(p)}
+                  className="peer sr-only"
+                />
+                <span className="block cursor-pointer px-3 py-2 text-center text-sm font-medium peer-checked:bg-ink peer-checked:text-surface peer-focus-visible:outline-2 peer-focus-visible:-outline-offset-4 peer-focus-visible:outline-accent">
+                  {PRIORITY_LABELS[p]}
+                </span>
+              </label>
             ))}
-          </select>
-        </label>
+          </div>
+        </fieldset>
 
         {error && (
-          <p role="alert" className="rounded-md bg-red-50 p-2 text-sm text-red-800">
+          <p role="alert" className="border-l-4 border-high bg-surface px-3 py-2 text-sm">
             {error}
           </p>
         )}
@@ -81,7 +94,7 @@ export function TicketForm({ onCreated }: { onCreated: () => void }) {
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full cursor-pointer rounded-sm bg-accent px-4 py-2.5 font-semibold text-white hover:bg-accent-deep disabled:cursor-wait disabled:opacity-60"
         >
           {submitting ? 'Creating…' : 'Create ticket'}
         </button>

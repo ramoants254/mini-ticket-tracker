@@ -19,5 +19,29 @@ services:
       timeout: 3s
       retries: 10
 
+  # Optional: the API in a container. Not started by default, so `docker compose up -d`
+  # still only starts the database and `npm run dev` can use port 3000.
+  # Run with: docker compose --profile full up -d --build
+  api:
+    profiles: ["full"]
+    build: ./backend
+    container_name: tickets-api
+    restart: unless-stopped
+    environment:
+      PORT: "3000"
+      # Inside the compose network the database host is the service name, not localhost.
+      DATABASE_URL: postgres://tickets:tickets@db:5432/tickets
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
 volumes:
   pgdata:
