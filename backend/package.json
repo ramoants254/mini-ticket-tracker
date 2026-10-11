@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/db/migrate-cli.ts",
     "db:migrate:test": "NODE_ENV=test tsx src/db/migrate-cli.ts",
-    "test": "NODE_ENV=test vitest run"
+    "test": "vitest run"
   },
   "engines": {
     "node": ">=20"
